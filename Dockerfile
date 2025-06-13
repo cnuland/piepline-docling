@@ -27,7 +27,7 @@ RUN pip install --upgrade pip && \
         sentence-transformers==2.2.2 \
         huggingface_hub==0.15.1 \
         transformers==4.30.2 \
-        numpy<2.0.0 \
+        "numpy<2.0.0" \
         --extra-index-url https://download.pytorch.org/whl/cpu && \
     rm -rf ~/.cache
 
