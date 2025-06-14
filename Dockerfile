@@ -1,35 +1,38 @@
-FROM registry.fedoraproject.org/fedora:39
+FROM python:3.11-slim
 
 ENV GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"
 ENV HF_HOME=/tmp/huggingface
 ENV TORCH_HOME=/tmp/torch
 ENV EASYOCR_CACHE_FOLDER=/tmp/.EasyOCR
-ENV PYTHONUNBUFFERED=1
 
-RUN dnf install -y \
-        python3-pip \
-        gcc \
-        gcc-c++ \
-        git \
-        wget \
-        unzip \
-        poppler-utils \
-        tesseract \
-        tesseract-langpack-eng \
-        cairo \
-        cairo-devel \
-        libjpeg-turbo-devel \
-        zlib-devel \
-        openblas-devel \
-        freetype-devel \
-        pkgconfig \
-        make \
-        ghostscript \
-        which \
-    && dnf clean all
+# Set work directory
+WORKDIR /root/
 
-RUN mkdir -p /tmp/.EasyOCR /tmp/huggingface /tmp/torch && chmod -R 777 /tmp
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    gcc \
+    g++ \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    zlib1g-dev \
+    libpoppler-cpp-dev \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    ghostscript \
+    wget \
+    curl \
+    unzip \
+    build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
+# Upgrade pip and install Python packages
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir \
         --extra-index-url https://download.pytorch.org/whl/cpu \
@@ -43,3 +46,13 @@ RUN pip install --upgrade pip && \
         marshmallow==3.19.0 \
         environs==9.5.0 \
     && rm -rf ~/.cache
+
+# Create and set permissions for cache directories
+RUN mkdir -p /tmp/huggingface /tmp/.EasyOCR /tmp/torch && \
+    chmod -R 777 /tmp/huggingface /tmp/.EasyOCR /tmp/torch
+
+# Optional: Copy a test script (minimal.py) if needed for standalone testing
+# COPY docs/examples/minimal.py /root/minimal.py
+
+# Final environment thread optimization
+ENV OMP_NUM_THREADS=4
