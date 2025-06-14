@@ -37,6 +37,7 @@ RUN pip install --upgrade pip && \
         pymilvus \
         sentence-transformers==2.2.2 \
         transformers==4.28.1 \
+        tokenizers==0.13.2 \
         "numpy<2.0.0" \
         boto3 \
         marshmallow==3.19.0 \
