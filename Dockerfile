@@ -6,6 +6,7 @@ ENV TORCH_HOME=/tmp/torch
 ENV EASYOCR_CACHE_FOLDER=/tmp/.EasyOCR
 ENV PYTHONUNBUFFERED=1
 
+# System deps
 RUN dnf install -y \
         python3-pip \
         gcc \
@@ -26,12 +27,13 @@ RUN dnf install -y \
         make \
         ghostscript \
         which \
+        rust cargo \
     && dnf clean all
 
-# Create required cache folders with proper permissions
+# Create writable cache folders for EasyOCR, HuggingFace, and PyTorch
 RUN mkdir -p /tmp/.EasyOCR /tmp/huggingface /tmp/torch && chmod -R 777 /tmp
 
-# Install packages (leave huggingface_hub unpinned to allow docling to resolve it correctly)
+# Install Python deps (no huggingface_hub pinning to avoid docling conflict)
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir \
         --extra-index-url https://download.pytorch.org/whl/cpu \
@@ -44,5 +46,3 @@ RUN pip install --upgrade pip && \
         transformers==4.30.2 \
         "numpy<2.0.0" && \
     rm -rf ~/.cache
-
-
