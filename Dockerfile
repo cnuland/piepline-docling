@@ -30,13 +30,14 @@ RUN pip install --upgrade pip && \
         huggingface_hub==0.23.0 \
         sentence-transformers==2.5.1 \
         transformers==4.38.2 \
-        tokenizers==0.13.2 \
+        tokenizers==0.15.1 \
         "docling>=2.0.0" \
         pymilvus \
         boto3 \
         marshmallow==3.19.0 \
         environs==9.5.0 \
         "numpy<2.0.0"
+
 
 # Final permissions fix
 RUN chmod -R a+rwx /root /tmp
