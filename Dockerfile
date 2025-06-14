@@ -24,15 +24,14 @@ RUN apt-get update && \
 RUN mkdir -p /tmp/.EasyOCR /tmp/huggingface /tmp/torch && \
     chmod -R 777 /tmp/.EasyOCR /tmp/huggingface /tmp/torch
 
-# Install Python dependencies
 RUN pip install --upgrade pip && \
     pip install \
         kfp==2.0.1 \
-        huggingface_hub==0.14.1 \
-        sentence-transformers==2.2.2 \
+        huggingface_hub==0.23.0 \
+        sentence-transformers==2.5.1 \
         transformers==4.28.1 \
         tokenizers==0.13.2 \
-        "docling>=1.3.0" \
+        "docling>=2.0.0" \
         pymilvus \
         boto3 \
         marshmallow==3.19.0 \
