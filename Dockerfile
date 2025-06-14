@@ -1,47 +1,46 @@
 FROM python:3.11-slim
 
-ENV PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
-    HOME=/root
+# Set environment vars
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
-        git \
-        curl \
-        gcc \
+        libgl1 \
         libglib2.0-0 \
         libsm6 \
+        libxrender1 \
         libxext6 \
-        libxrender-dev \
-        libgl1-mesa-glx \
-        libpoppler-cpp-dev \
-        poppler-utils \
         tesseract-ocr \
-        libspatialindex-dev && \
-    rm -rf /var/lib/apt/lists/*
+        poppler-utils \
+        libpoppler-cpp-dev \
+        git \
+        curl \
+        && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip and install Python dependencies
+# Create runtime cache dirs with proper permissions
+RUN mkdir -p /tmp/.EasyOCR /tmp/huggingface /tmp/torch && \
+    chmod -R 777 /tmp/.EasyOCR /tmp/huggingface /tmp/torch
+
+# Install Python dependencies
 RUN pip install --upgrade pip && \
     pip install \
-        "kfp==2.0.1" \
-        "huggingface_hub<1.0.0" \
-        "sentence-transformers" \
-        "transformers==4.28.1" \
-        "tokenizers==0.13.2" \
+        kfp==2.0.1 \
+        huggingface_hub==0.14.1 \
+        sentence-transformers==2.2.2 \
+        transformers==4.28.1 \
+        tokenizers==0.13.2 \
         "docling>=1.3.0" \
-        "pymilvus" \
-        "boto3" \
-        "marshmallow==3.19.0" \
-        "environs==9.5.0" \
+        pymilvus \
+        boto3 \
+        marshmallow==3.19.0 \
+        environs==9.5.0 \
         "numpy<2.0.0"
 
-# Ensure required folders exist and are writable
-RUN mkdir -p /root/.cache /tmp/.EasyOCR /tmp/huggingface /tmp/torch && \
-    chmod -R 777 /root /tmp
+# Final permissions fix
+RUN chmod -R a+rwx /root /tmp
 
-# Set working directory
-WORKDIR /app
+# Entrypoint is handled by KFP, so we don't override CMD
 
-CMD ["python3"]
