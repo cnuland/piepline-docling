@@ -6,7 +6,7 @@ ENV TORCH_HOME=/tmp/torch
 ENV EASYOCR_CACHE_FOLDER=/tmp/.EasyOCR
 ENV PYTHONUNBUFFERED=1
 
-# System deps
+# Install system dependencies and Rust for tokenizers build
 RUN dnf install -y \
         python3-pip \
         gcc \
@@ -30,10 +30,10 @@ RUN dnf install -y \
         rust cargo \
     && dnf clean all
 
-# Create writable cache folders for EasyOCR, HuggingFace, and PyTorch
+# Create cache folders
 RUN mkdir -p /tmp/.EasyOCR /tmp/huggingface /tmp/torch && chmod -R 777 /tmp
 
-# Install Python deps (no huggingface_hub pinning to avoid docling conflict)
+# Install Python packages
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir \
         --extra-index-url https://download.pytorch.org/whl/cpu \
@@ -44,5 +44,6 @@ RUN pip install --upgrade pip && \
         marshmallow==3.19.0 \
         environs==9.5.0 \
         transformers==4.30.2 \
-        "numpy<2.0.0" && \
-    rm -rf ~/.cache
+        tokenizers==0.13.3 \
+        "numpy<2.0.0" \
+    && rm -rf ~/.cache
