@@ -5,10 +5,9 @@ ENV HF_HOME=/tmp/huggingface
 ENV TORCH_HOME=/tmp/torch
 ENV EASYOCR_CACHE_FOLDER=/tmp/.EasyOCR
 
-# Set work directory
-WORKDIR /root/
+# Set a non-root working directory
+WORKDIR /app
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     gcc \
@@ -29,10 +28,10 @@ RUN apt-get update && apt-get install -y \
     curl \
     unzip \
     build-essential \
+    libspatialindex-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip and install Python packages
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir \
         --extra-index-url https://download.pytorch.org/whl/cpu \
@@ -41,18 +40,13 @@ RUN pip install --upgrade pip && \
         sentence-transformers==2.2.2 \
         transformers==4.28.1 \
         tokenizers==0.13.2 \
+        rtree \
         "numpy<2.0.0" \
         boto3 \
         marshmallow==3.19.0 \
         environs==9.5.0 \
     && rm -rf ~/.cache
 
-# Create and set permissions for cache directories
+# Set environment variables and create writable cache dirs
 RUN mkdir -p /tmp/huggingface /tmp/.EasyOCR /tmp/torch && \
     chmod -R 777 /tmp/huggingface /tmp/.EasyOCR /tmp/torch
-
-# Optional: Copy a test script (minimal.py) if needed for standalone testing
-# COPY docs/examples/minimal.py /root/minimal.py
-
-# Final environment thread optimization
-ENV OMP_NUM_THREADS=4
