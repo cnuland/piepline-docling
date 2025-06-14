@@ -6,7 +6,6 @@ ENV TORCH_HOME=/tmp/torch
 ENV EASYOCR_CACHE_FOLDER=/tmp/.EasyOCR
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies and Rust for tokenizers build
 RUN dnf install -y \
         python3-pip \
         gcc \
@@ -27,23 +26,19 @@ RUN dnf install -y \
         make \
         ghostscript \
         which \
-        rust cargo \
     && dnf clean all
 
-# Create cache folders
 RUN mkdir -p /tmp/.EasyOCR /tmp/huggingface /tmp/torch && chmod -R 777 /tmp
 
-# Install Python packages
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir \
         --extra-index-url https://download.pytorch.org/whl/cpu \
         docling \
         pymilvus \
-        sentence-transformers \
+        sentence-transformers==2.2.2 \
+        transformers==4.28.1 \
+        "numpy<2.0.0" \
         boto3 \
         marshmallow==3.19.0 \
         environs==9.5.0 \
-        transformers==4.30.2 \
-        tokenizers==0.13.3 \
-        "numpy<2.0.0" \
     && rm -rf ~/.cache
