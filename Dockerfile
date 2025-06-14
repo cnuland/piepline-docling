@@ -29,7 +29,7 @@ RUN pip install --upgrade pip && \
         kfp==2.0.1 \
         huggingface_hub==0.23.0 \
         sentence-transformers==2.5.1 \
-        transformers==4.28.1 \
+        transformers==4.38.2 \
         tokenizers==0.13.2 \
         "docling>=2.0.0" \
         pymilvus \
