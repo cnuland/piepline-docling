@@ -17,28 +17,27 @@ RUN apt-get update && \
         libxrender-dev \
         libgl1-mesa-glx \
         libpoppler-cpp-dev \
-        tesseract-ocr \
-        libpq-dev \
         poppler-utils \
+        tesseract-ocr \
         libspatialindex-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Install compatible Python packages
+# Upgrade pip and install Python dependencies
 RUN pip install --upgrade pip && \
     pip install \
-        kfp==2.0.1 \
-        huggingface_hub<1.0.0 \
-        sentence-transformers \
-        transformers==4.28.1 \
-        tokenizers==0.13.2 \
+        "kfp==2.0.1" \
+        "huggingface_hub<1.0.0" \
+        "sentence-transformers" \
+        "transformers==4.28.1" \
+        "tokenizers==0.13.2" \
         "docling>=1.3.0" \
-        pymilvus \
-        boto3 \
-        marshmallow==3.19.0 \
-        environs==9.5.0 \
+        "pymilvus" \
+        "boto3" \
+        "marshmallow==3.19.0" \
+        "environs==9.5.0" \
         "numpy<2.0.0"
 
-# Set permissions on critical folders
+# Ensure required folders exist and are writable
 RUN mkdir -p /root/.cache /tmp/.EasyOCR /tmp/huggingface /tmp/torch && \
     chmod -R 777 /root /tmp
 
@@ -46,5 +45,3 @@ RUN mkdir -p /root/.cache /tmp/.EasyOCR /tmp/huggingface /tmp/torch && \
 WORKDIR /app
 
 CMD ["python3"]
-
-
