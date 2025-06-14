@@ -2,10 +2,14 @@ FROM registry.fedoraproject.org/fedora:39
 
 ENV GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"
 ENV HF_HOME=/tmp/huggingface
+ENV HF_HUB_CACHE=/tmp/huggingface
+ENV TRANSFORMERS_CACHE=/tmp/huggingface
+ENV HF_DATASETS_CACHE=/tmp/huggingface
 ENV TORCH_HOME=/tmp/torch
 ENV EASYOCR_CACHE_FOLDER=/tmp/.EasyOCR
+ENV PYTHONUNBUFFERED=1
 
-# Install system-level dependencies
+# Install system dependencies
 RUN dnf install -y \
         python3-pip \
         gcc \
@@ -13,7 +17,6 @@ RUN dnf install -y \
         git \
         wget \
         unzip \
-        ffmpeg \
         poppler-utils \
         tesseract \
         tesseract-langpack-eng \
@@ -29,33 +32,29 @@ RUN dnf install -y \
         which \
     && dnf clean all
 
-# Upgrade pip and install Python dependencies
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir \
+# Install Python dependencies
+RUN pip install --upgrade pip && pip install --no-cache-dir \
         docling \
+        pymilvus \
+        sentence-transformers \
         boto3 \
         marshmallow==3.19.0 \
         environs==9.5.0 \
-        "sentence-transformers==2.2.2" \
-        "huggingface_hub==0.14.1" \
-        "transformers==4.30.2" \
-        "numpy<2.0.0" \
-        "pymilvus==2.4.0" \
-        --extra-index-url https://download.pytorch.org/whl/cpu && \
-    rm -rf ~/.cache
+        huggingface_hub==0.15.1 \
+        transformers==4.30.2 \
+        numpy<2.0.0 \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    && rm -rf ~/.cache
 
-# Create cache directories with safe permissions
-RUN mkdir -p /tmp/huggingface /tmp/torch /tmp/.EasyOCR && \
-    chmod -R 777 /tmp/huggingface /tmp/torch /tmp/.EasyOCR
+# Ensure cache directories exist with proper permissions
+RUN mkdir -p $EASYOCR_CACHE_FOLDER $HF_HOME $HF_HUB_CACHE $TORCH_HOME && \
+    chmod -R 777 /tmp
 
-# Pre-download docling models and set permissions
-RUN mkdir -p /root/.cache/docling && \
-    docling-tools models download && \
-    chmod -R 755 /root/.cache/docling
+# Pre-download Docling models to speed up runtime
+RUN docling-tools models download
 
-# Set working directory
-WORKDIR /app
+# On container environments, always set a thread budget
+ENV OMP_NUM_THREADS=4
 
-# Entrypoint placeholder
-CMD ["/bin/bash"]
-
+# Optional default workdir
+WORKDIR /root
