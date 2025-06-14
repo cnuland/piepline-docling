@@ -28,9 +28,10 @@ RUN dnf install -y \
         which \
     && dnf clean all
 
-# Create cache folders with proper permissions
+# Create required cache folders with proper permissions
 RUN mkdir -p /tmp/.EasyOCR /tmp/huggingface /tmp/torch && chmod -R 777 /tmp
 
+# Install packages (leave huggingface_hub unpinned to allow docling to resolve it correctly)
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir \
         --extra-index-url https://download.pytorch.org/whl/cpu \
@@ -40,7 +41,6 @@ RUN pip install --upgrade pip && \
         boto3 \
         marshmallow==3.19.0 \
         environs==9.5.0 \
-        huggingface_hub==0.15.1 \
         transformers==4.30.2 \
         "numpy<2.0.0" && \
     rm -rf ~/.cache
