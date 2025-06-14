@@ -1,52 +1,49 @@
 FROM python:3.11-slim
 
-ENV GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"
-ENV HF_HOME=/tmp/huggingface
-ENV TORCH_HOME=/tmp/torch
-ENV EASYOCR_CACHE_FOLDER=/tmp/.EasyOCR
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    HOME=/root
 
-# Set a non-root working directory
-WORKDIR /app
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        git \
+        curl \
+        gcc \
+        libglib2.0-0 \
+        libsm6 \
+        libxext6 \
+        libxrender-dev \
+        libgl1-mesa-glx \
+        libpoppler-cpp-dev \
+        tesseract-ocr \
+        libpq-dev \
+        poppler-utils \
+        libspatialindex-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y \
-    git \
-    gcc \
-    g++ \
-    libgl1 \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    zlib1g-dev \
-    libpoppler-cpp-dev \
-    tesseract-ocr \
-    tesseract-ocr-eng \
-    ghostscript \
-    wget \
-    curl \
-    unzip \
-    build-essential \
-    libspatialindex-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
+# Install Python libraries with pinned versions
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir \
-        --extra-index-url https://download.pytorch.org/whl/cpu \
-        docling \
-        pymilvus \
+    pip install \
+        kfp==2.0.1 \
+        huggingface_hub==0.19.4 \
         sentence-transformers==2.2.2 \
         transformers==4.28.1 \
         tokenizers==0.13.2 \
-        rtree \
-        "numpy<2.0.0" \
+        docling \
+        pymilvus \
         boto3 \
         marshmallow==3.19.0 \
         environs==9.5.0 \
-    && rm -rf ~/.cache
+        "numpy<2.0.0"
 
-# Set environment variables and create writable cache dirs
-RUN mkdir -p /tmp/huggingface /tmp/.EasyOCR /tmp/torch && \
-    chmod -R 777 /tmp/huggingface /tmp/.EasyOCR /tmp/torch
+# Set up runtime directories with correct permissions
+RUN mkdir -p /root/.cache /tmp/.EasyOCR /tmp/huggingface /tmp/torch && \
+    chmod -R 777 /root /tmp
+
+# Set workdir and entry
+WORKDIR /app
+CMD ["python3"]
+
